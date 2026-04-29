@@ -3,6 +3,15 @@ import { AnimatedBorderButton } from "@/components/AnimatedBorderButton";
 
 const projects = [
   {
+  title: "FinFlowAI - AI Financial Assistant",
+  description:
+    "Built an AI-powered financial assistant to parse bank statements, extract transactions, and enable natural language queries over expenses. Implemented a backend pipeline for document processing and structured data retrieval.",
+  image: "/projects/finflowai.png", 
+  tags: ["Python", "FastAPI", "PostgreSQL","LangGraph","RAG"],
+  link: "https://fin-flow-ai-tau.vercel.app/dashboard",
+  github: "https://github.com/sundram7865/finflowai",
+},
+  {
     title: "ZapAI - AI SaaS Platform",
     description:
       "A full-stack PERN platform featuring AI article generation, resume analysis, and image processing (Background/Object removal). Includes Clerk authentication and premium subscription gating.",
