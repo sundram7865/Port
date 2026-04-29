@@ -2,10 +2,10 @@ const experiences = [
   {
     period: "August 2025 — February 2026",
     role: "SDE Intern",
-    company: "Knowledge Doc",
+    company: "Dataline Advertisers",
     description:
-      "Engineered real-time bidirectional AI voice agents by integrating Twilio/Exotel streams with OpenAI Realtime API. Built 10+ production-grade FastAPI endpoints and optimized search accuracy by 40% through a custom RAG pipeline and Firestore vector database.",
-    technologies: ["Python", "FastAPI", "OpenAI Realtime", "Twilio", "RAG", "Firestore"],
+      "Developed 10+ production-grade REST and WebSocket APIs using Python and FastAPI, powering an enterprise AI voice-calling platform. Designed a custom RAG pipeline using OpenAI embeddings and Firestore vector database, improving search accuracy by 40%. Orchestrated asynchronous webhook handlers and event-driven call state management, ensuring 99.9% API uptime.",
+    technologies: ["Python", "FastAPI", "OpenAI", "RAG", "Firestore", "WebSockets"],
     current: true,
   },
 ];
