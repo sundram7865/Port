@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -8,16 +8,15 @@ import { site } from "@/content/site";
 
 import "./globals.css";
 
+// One webfont family, not two. A second family cost ~90 KB and two more
+// requests to style labels that a system mono stack renders just as well.
+// `adjustFontFallback` (default) size-matches the fallback so the swap does
+// not reflow body copy.
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-mono-stack",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -71,7 +70,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
         <ThemeScript />
       </head>

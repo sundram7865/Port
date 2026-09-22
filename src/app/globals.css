@@ -19,13 +19,13 @@
   --border-strong: #cfd3d8;
   --fg: #14181d;
   --fg-muted: #5a6472;        /* 5.8:1 on --bg */
-  --fg-subtle: #767f8c;       /* 4.5:1 on --bg  */
-  --accent: #0d7c73;          /* 5.1:1 on --bg  */
-  --accent-hover: #0a655e;
-  --accent-solid: #0d7c73;
-  --accent-contrast: #ffffff; /* 5.1:1 on --accent-solid */
-  --accent-wash: rgb(13 124 115 / 0.08);
-  --ring: #0d7c73;
+  --fg-subtle: #68717c;       /* 4.6:1 on the worst surface it lands on */
+  --accent: #0b6e66;          /* 5.9:1 on --bg, 5.3:1 on --accent-wash */
+  --accent-hover: #095a53;
+  --accent-solid: #0b6e66;
+  --accent-contrast: #ffffff; /* 6.1:1 on --accent-solid */
+  --accent-wash: rgb(11 110 102 / 0.08);
+  --ring: #0b6e66;
 
   --grid-line: rgb(20 24 29 / 0.055);
   --shadow-sm: 0 1px 2px rgb(16 20 26 / 0.05);
@@ -42,7 +42,7 @@
   --border-strong: #2c3542;
   --fg: #e8ecf1;
   --fg-muted: #8b96a5;        /* 6.4:1 on --bg */
-  --fg-subtle: #737e8d;       /* 4.6:1 on --bg */
+  --fg-subtle: #7b8593;       /* 4.6:1 on the worst surface it lands on */
   --accent: #2dd4bf;          /* 9.9:1 on --bg */
   --accent-hover: #5eead4;
   --accent-solid: #2dd4bf;
@@ -73,7 +73,7 @@
   --color-accent-wash: var(--accent-wash);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono-stack), ui-monospace, SFMono-Regular, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
   --shadow-card: var(--shadow-md);
 }

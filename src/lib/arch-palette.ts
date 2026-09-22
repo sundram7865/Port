@@ -37,7 +37,7 @@ export const palettes: Record<"light" | "dark", Palette> = {
     node: {
       client: "#64748b",
       edge: "#2563eb",
-      service: "#0d7c73",
+      service: "#0b6e66",
       worker: "#7c3aed",
       queue: "#b45309",
       datastore: "#0369a1",
@@ -45,7 +45,7 @@ export const palettes: Record<"light" | "dark", Palette> = {
       guard: "#be123c",
       external: "#475569",
     },
-    edge: { sync: "#0d7c73", async: "#b45309", data: "#0369a1" },
+    edge: { sync: "#0b6e66", async: "#b45309", data: "#0369a1" },
     dim: "#cfd3d8",
   },
 };
