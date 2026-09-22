@@ -6,9 +6,16 @@ import * as THREE from "three";
 
 import type { Architecture, ArchNode } from "@/content/types";
 import type { Palette } from "@/lib/arch-palette";
-import type { Controls } from "./controls";
+import { DEFAULT_VIEW, type Controls } from "./controls";
 
 const NODE_SIZE: [number, number, number] = [1.15, 0.62, 1.15];
+
+/** World-space drop from a node centre to its label anchor. */
+const LABEL_DROP = NODE_SIZE[1] / 2 + 0.26;
+
+/** Label width caps, mirrored in the overlay's CSS so the fit maths matches reality. */
+export const LABEL_MAX_PX = 104;
+export const LABEL_MAX_PX_SM = 74;
 
 /* -------------------------------------------------------------------------- */
 
@@ -17,6 +24,7 @@ function NodeMesh({
   color,
   active,
   faded,
+  weight,
   onSelect,
   onHover,
 }: {
@@ -24,6 +32,7 @@ function NodeMesh({
   color: string;
   active: boolean;
   faded: boolean;
+  weight: Palette["weight"];
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
 }) {
@@ -48,8 +57,8 @@ function NodeMesh({
     group.current.scale.setScalar(next);
   });
 
-  const fillOpacity = active ? 0.34 : faded ? 0.05 : 0.14;
-  const lineOpacity = active ? 1 : faded ? 0.18 : 0.72;
+  const fillOpacity = active ? weight.fillActive : faded ? weight.fillFaded : weight.fill;
+  const lineOpacity = active ? 1 : faded ? weight.lineFaded : weight.line;
 
   return (
     <group
@@ -127,7 +136,7 @@ function Edges({
 
   return (
     <lineSegments geometry={geometry}>
-      <lineBasicMaterial vertexColors transparent opacity={0.9} />
+      <lineBasicMaterial vertexColors transparent opacity={palette.weight.edge} />
     </lineSegments>
   );
 }
@@ -224,10 +233,13 @@ function Labels({
   nodes,
   labelRefs,
   group,
+  connected,
 }: {
   nodes: ArchNode[];
   labelRefs: React.RefObject<Array<HTMLDivElement | null>>;
   group: React.RefObject<THREE.Group | null>;
+  /** Ids in the selected node's neighbourhood, or null when nothing is selected. */
+  connected: Set<string> | null;
 }) {
   const { camera, size } = useThree();
   const scratch = useMemo(() => new THREE.Vector3(), []);
@@ -241,15 +253,29 @@ function Labels({
       const node = nodes[index];
       if (!element || !node) continue;
 
-      scratch.set(...node.position).applyMatrix4(group.current.matrixWorld).project(camera);
+      // Anchor below the box rather than at its centre, so the label never sits
+      // on top of the node it names. Offsetting in world space keeps the gap
+      // perspective-correct as the graph rotates.
+      scratch
+        .set(node.position[0], node.position[1] - LABEL_DROP, node.position[2])
+        .applyMatrix4(group.current.matrixWorld)
+        .project(camera);
 
       const x = (scratch.x * 0.5 + 0.5) * size.width;
       const y = (-scratch.y * 0.5 + 0.5) * size.height;
       const behind = scratch.z > 1;
 
-      element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, 0)`;
+
       // Depth cue: labels further from the camera recede rather than compete.
-      element.style.opacity = behind ? "0" : String(Math.max(0.35, 1 - (scratch.z - 0.9) * 6));
+      const depth = Math.max(0.3, 1 - (scratch.z - 0.9) * 7);
+      // Selecting a node pushes the rest of the labels back, which is what makes
+      // the dense middle of these graphs readable on a phone.
+      const focus = !connected || connected.has(node.id) ? 1 : 0.18;
+      element.style.opacity = behind ? "0" : String(depth * focus);
+      // Nearer labels paint over farther ones, so overlaps resolve front-to-back
+      // instead of in DOM order.
+      element.style.zIndex = String(Math.round((1 - scratch.z) * 1000));
     }
   });
 
@@ -262,20 +288,57 @@ function Rig({
   controls,
   autoRotate,
   group,
+  bounds,
 }: {
   controls: React.RefObject<Controls>;
   autoRotate: boolean;
   group: React.RefObject<THREE.Group | null>;
+  bounds: { radiusXZ: number; halfY: number };
 }) {
   const { camera, size } = useThree();
 
-  // Fit the graph to the viewport on resize rather than assuming a desktop aspect.
+  /**
+   * Fit the camera to the graph's real extents.
+   *
+   * A bounding sphere is the easy answer and it is badly wrong here: these
+   * topologies are wide and flat, so the sphere is dominated by the x extent
+   * and the framing ends up ~40% of the canvas. Instead: the worst-case
+   * horizontal half-width under free yaw is hypot(maxX, maxZ), and the vertical
+   * half-height at the resting pitch is halfY*cos(p) + radius*sin(p). Fit both
+   * against the frustum and take whichever is binding.
+   */
   useEffect(() => {
+    const perspective = camera as THREE.PerspectiveCamera;
     const aspect = size.width / Math.max(1, size.height);
-    const fitted = aspect < 1.1 ? 34 : aspect < 1.6 ? 27 : 22;
-    controls.current.distance = fitted;
-    controls.current.targetDistance = fitted;
-  }, [size.width, size.height, controls]);
+    const tan = Math.tan(((perspective.fov ?? 42) * Math.PI) / 360);
+
+    const pitch = DEFAULT_VIEW.pitch;
+    const halfW = bounds.radiusXZ;
+    const halfH = bounds.halfY * Math.cos(pitch) + bounds.radiusXZ * Math.sin(pitch) + LABEL_DROP;
+
+    const solve = (padWorld: number) =>
+      Math.max(
+        ((halfH + padWorld * 0.5) * 1.12) / tan,
+        ((halfW + padWorld) * 1.06) / (tan * aspect),
+      );
+
+    /**
+     * Labels are DOM elements measured in pixels, but the frame is solved in
+     * world units, and the conversion depends on the distance being solved for.
+     * Solve once without them, convert the label half-width at that distance,
+     * then solve again with the pad. One iteration converges well inside a
+     * pixel here, and without it the outermost labels clip on narrow canvases.
+     */
+    const first = solve(0);
+    const unitsPerPixel = (2 * first * tan * aspect) / Math.max(1, size.width);
+    const labelHalfWidth = (size.width < 520 ? LABEL_MAX_PX_SM : LABEL_MAX_PX) / 2;
+    const fit = Math.max(8, solve(labelHalfWidth * unitsPerPixel));
+
+    const c = controls.current;
+    c.fit = fit;
+    c.distance = fit;
+    c.targetDistance = fit;
+  }, [size.width, size.height, controls, camera, bounds]);
 
   useFrame((state, delta) => {
     const c = controls.current;
@@ -330,6 +393,17 @@ export function ArchitectureScene({
     return map;
   }, [architecture]);
 
+  const bounds = useMemo(() => {
+    let radiusXZ = 0;
+    let halfY = 0;
+    for (const [x, y, z] of architecture.nodes.map((node) => node.position)) {
+      radiusXZ = Math.max(radiusXZ, Math.hypot(x, z));
+      halfY = Math.max(halfY, Math.abs(y));
+    }
+    // Half a node, so the box edge is inside the frame rather than on it.
+    return { radiusXZ: radiusXZ + NODE_SIZE[0] / 2, halfY: halfY + NODE_SIZE[1] / 2 };
+  }, [architecture]);
+
   const connected = useMemo(() => {
     if (!activeId) return null;
     const set = new Set<string>([activeId]);
@@ -349,7 +423,7 @@ export function ArchitectureScene({
       frameloop={animate ? "always" : "demand"}
       onPointerMissed={() => onSelect("")}
     >
-      <Rig controls={controls} autoRotate={animate} group={group} />
+      <Rig controls={controls} autoRotate={animate} group={group} bounds={bounds} />
       <group ref={group}>
         <Edges architecture={architecture} palette={palette} activeId={activeId} positions={positions} />
         <Packets
@@ -364,6 +438,7 @@ export function ArchitectureScene({
             key={node.id}
             node={node}
             color={palette.node[node.kind]}
+            weight={palette.weight}
             active={activeId === node.id}
             faded={Boolean(connected) && !connected?.has(node.id)}
             onSelect={onSelect}
@@ -371,7 +446,7 @@ export function ArchitectureScene({
           />
         ))}
       </group>
-      <Labels nodes={architecture.nodes} labelRefs={labelRefs} group={group} />
+      <Labels nodes={architecture.nodes} labelRefs={labelRefs} group={group} connected={connected} />
     </Canvas>
   );
 }

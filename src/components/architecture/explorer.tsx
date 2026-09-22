@@ -81,7 +81,8 @@ export function ArchitectureExplorer() {
 
   const zoom = useCallback((direction: 1 | -1) => {
     const c = controls.current;
-    c.targetDistance = Math.max(12, Math.min(44, c.targetDistance + direction * 3));
+    // Limits are relative to the fitted distance, so they hold at any aspect.
+    c.targetDistance = Math.max(c.fit * 0.55, Math.min(c.fit * 1.9, c.targetDistance + direction * c.fit * 0.14));
     c.lastInput = performance.now();
   }, []);
 
@@ -89,7 +90,7 @@ export function ArchitectureExplorer() {
     const c = controls.current;
     c.targetYaw = DEFAULT_VIEW.yaw;
     c.targetPitch = DEFAULT_VIEW.pitch;
-    c.targetDistance = DEFAULT_VIEW.distance;
+    c.targetDistance = c.fit;
     c.lastInput = performance.now();
     setSelected(null);
   }, []);
@@ -165,8 +166,14 @@ export function ArchitectureExplorer() {
                       ref={(element) => {
                         labelRefs.current[index] = element;
                       }}
-                      style={{ opacity: 0, willChange: "transform" }}
-                      className="absolute left-0 top-0 whitespace-nowrap rounded bg-bg/70 px-1.5 py-0.5 font-mono text-[10px] text-fg backdrop-blur-[2px] sm:text-[11px]"
+                      style={{
+                        opacity: 0,
+                        willChange: "transform",
+                        // Mirrors LABEL_MAX_PX / LABEL_MAX_PX_SM in scene.tsx,
+                        // which the camera fit reserves room for.
+                        maxWidth: "var(--label-max)",
+                      }}
+                      className="absolute left-0 top-0 truncate rounded bg-bg/80 px-1.5 py-0.5 font-mono text-[10px] leading-tight text-fg backdrop-blur-[2px] [--label-max:74px] sm:text-[11px] sm:[--label-max:104px]"
                     >
                       {node.label}
                     </div>

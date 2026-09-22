@@ -13,6 +13,19 @@ export type Palette = {
   node: Record<NodeKind, string>;
   edge: Record<ArchEdge["kind"], string>;
   dim: string;
+  /**
+   * Stroke and fill weights per theme. A 14% fill reads as solid volume on a
+   * near-black background and all but disappears on a near-white one, so these
+   * are not shared.
+   */
+  weight: {
+    fill: number;
+    fillActive: number;
+    fillFaded: number;
+    line: number;
+    lineFaded: number;
+    edge: number;
+  };
 };
 
 export const palettes: Record<"light" | "dark", Palette> = {
@@ -31,6 +44,7 @@ export const palettes: Record<"light" | "dark", Palette> = {
     },
     edge: { sync: "#2dd4bf", async: "#fbbf24", data: "#38bdf8" },
     dim: "#1e242d",
+    weight: { fill: 0.14, fillActive: 0.34, fillFaded: 0.05, line: 0.72, lineFaded: 0.18, edge: 0.9 },
   },
   light: {
     background: "#fbfbfa",
@@ -47,6 +61,7 @@ export const palettes: Record<"light" | "dark", Palette> = {
     },
     edge: { sync: "#0b6e66", async: "#b45309", data: "#0369a1" },
     dim: "#cfd3d8",
+    weight: { fill: 0.24, fillActive: 0.48, fillFaded: 0.08, line: 0.92, lineFaded: 0.26, edge: 1 },
   },
 };
 

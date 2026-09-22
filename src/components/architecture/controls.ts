@@ -12,6 +12,8 @@ export type Controls = {
   targetPitch: number;
   distance: number;
   targetDistance: number;
+  /** Distance the graph was fitted to; zoom limits are relative to it. */
+  fit: number;
   /** Timestamp of the last user interaction; auto-rotation resumes after a pause. */
   lastInput: number;
 };
@@ -26,6 +28,7 @@ export function createControls(): Controls {
     targetPitch: DEFAULT_VIEW.pitch,
     distance: DEFAULT_VIEW.distance,
     targetDistance: DEFAULT_VIEW.distance,
+    fit: DEFAULT_VIEW.distance,
     lastInput: 0,
   };
 }
