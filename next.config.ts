@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
   // Next infer the wrong workspace root.
   outputFileTracingRoot: __dirname,
   poweredByHeader: false,
-  // The stylesheet is ~7 KB; inlining it removes a render-blocking round trip
-  // that cost ~170 ms before first paint.
-  experimental: { inlineCss: true },
   images: {
     formats: ["image/avif", "image/webp"],
   },

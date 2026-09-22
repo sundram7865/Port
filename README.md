@@ -39,6 +39,12 @@ npm run build && npm start &
 npm run check:visual     # BASE_URL / CHROME_PATH are configurable
 ```
 
+`next dev` and `next build` share the `.next` directory. Switching between them
+can leave a stale production chunk that dev then fails to load, which surfaces
+as a page with no styling at all and a `__webpack_modules__[moduleId] is not a
+function` error in the console. `npm run clean` removes the directory and fixes
+it.
+
 ## Structure
 
 ```
