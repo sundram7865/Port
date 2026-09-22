@@ -49,14 +49,14 @@ export const experience: Experience[] = [
   {
     company: "Shramik Sathi",
     role: "Founding Engineer",
-    period: "March 2026 — Present",
+    period: "March 2026 - Present",
     location: "Remote",
     href: "https://shramiksathi.com/",
     current: true,
     bullets: [
       "Architected and shipped a multi-tenant workforce compliance platform serving 600+ users, digitising the statutory muster roll, wage register and grievance trail across 224 REST APIs, a 66-table PostgreSQL schema on Prisma ORM and 51 Next.js screens.",
-      "Implemented the payroll engine converting attendance into wages with PF, ESI, professional tax, overtime, fines and arrears — generating 11 inspector-ready statutory registers and blocking any run that breaches the 50% deduction cap (Payment of Wages Act) or the 50% basic-pay floor (Code on Wages).",
-      "Engineered asynchronous payroll, export and PDF processing on BullMQ and Redis, and pooled Chromium instead of launching it per document — cutting 200 launches to 1 per payslip run and eliminating render timeouts.",
+      "Implemented the payroll engine converting attendance into wages with PF, ESI, professional tax, overtime, fines and arrears, generating 11 inspector-ready statutory registers and blocking any run that breaches the 50% deduction cap (Payment of Wages Act) or the 50% basic-pay floor (Code on Wages).",
+      "Engineered asynchronous payroll, export and PDF processing on BullMQ and Redis, and pooled Chromium instead of launching it per document, cutting 200 launches to 1 per payslip run and eliminating render timeouts.",
       "Secured the backend through JWT rotation with token-family revocation, tenant-scoped middleware, 7-role RBAC with scoping and append-only audit logging, verified by 2,152 Jest tests at 77% statement coverage across 37 suites.",
       "Deployed on AWS EC2 as a 5-container Docker Compose stack (Nginx, API, web, worker, Redis) with RDS PostgreSQL and S3, co-locating the job queue to save ₹1,320/month versus managed ElastiCache.",
     ],
@@ -65,7 +65,7 @@ export const experience: Experience[] = [
   {
     company: "Dataline Advertisers",
     role: "SDE Intern",
-    period: "August 2025 — February 2026",
+    period: "August 2025 - February 2026",
     location: "Remote",
     bullets: [
       "Developed 30+ production-grade REST and WebSocket APIs in Python and FastAPI with async webhook handling and event-driven call state management for an enterprise AI voice-calling product, achieving 99.9% API uptime.",
@@ -78,7 +78,7 @@ export const experience: Experience[] = [
 export const education = {
   institution: "Indian Institute of Information Technology, Nagpur",
   degree: "B.Tech, Electronics and Communication Engineering",
-  period: "July 2022 — July 2026",
+  period: "July 2022 - July 2026",
   location: "Nagpur, India",
 } as const;
 

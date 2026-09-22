@@ -246,7 +246,7 @@ export function ArchitectureExplorer() {
           </div>
         </div>
 
-        {/* Detail panel — also the keyboard path into the diagram. */}
+        {/* Detail panel, and the keyboard path into the diagram. */}
         <div className="min-w-0">
           <div className="rounded-xl border border-border bg-surface p-4">
             <h3 className="font-mono text-xs uppercase tracking-[0.16em] text-accent">

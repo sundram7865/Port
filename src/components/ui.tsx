@@ -137,7 +137,7 @@ export function Prose({ children }: { children: ReactNode }) {
 
 /**
  * GitHub mark as inline SVG. lucide dropped brand glyphs in v1, and this is a
- * single path — cheaper than adding an icon package for one symbol.
+ * single path, cheaper than adding an icon package for one symbol.
  */
 export function GithubMark({ className }: { className?: string }) {
   return (

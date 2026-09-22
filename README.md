@@ -1,4 +1,4 @@
-# Portfolio — Sundram Mishra
+# Portfolio: Sundram Mishra
 
 Source for [port-l7q5.vercel.app](https://port-l7q5.vercel.app). Next.js 15 (App Router),
 TypeScript, Tailwind v4, three.js via react-three-fiber.
@@ -10,7 +10,7 @@ types in `src/content/types.ts`. A project cannot ship without its metrics, and 
 cannot ship without its trade-offs section, because the type will not allow it.
 
 **The 3D is the content.** `src/components/architecture` renders the real topologies of the three
-systems in the case studies — the nodes, the edges and the flow are the architecture, not
+systems in the case studies. The nodes, the edges and the flow are the architecture, not
 decoration. Every node carries the engineering reason it exists.
 
 **three.js is never in the initial bundle.** The WebGL scene is a `next/dynamic` chunk that only
@@ -20,7 +20,7 @@ three into the first-load graph. Homepage First Load JS is ~116 kB.
 
 **Everything degrades.** `static-diagram.tsx` renders the same graph as server-side SVG. That is
 what ships with JavaScript disabled, what reduced-motion visitors keep, and what appears before the
-canvas mounts — so the section is never blank and never shifts.
+canvas mounts, so the section is never blank and never shifts.
 
 **One token system.** `globals.css` defines raw values on `:root` and `[data-theme="dark"]`, and
 `@theme inline` maps Tailwind utilities onto those variables by reference. Light and dark come from
@@ -66,7 +66,7 @@ check, a lint pass or a Lighthouse run:
   while three pairs were failing.
 - `npm run check:visual` drives the built site at 375 / 768 / 1440 in both
   themes and asserts no horizontal overflow, no console output, and that the
-  WebGL scene acquires a context and projects every node label — plus that
+  WebGL scene acquires a context and projects every node label. It also checks that
   reduced-motion mounts no canvas and that the page still works with
   JavaScript disabled.
 

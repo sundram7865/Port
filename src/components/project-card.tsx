@@ -65,7 +65,7 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
           >
             Live
             <ArrowUpRight aria-hidden className="size-3.5" />
-            <span className="sr-only"> — {project.name} (opens in a new tab)</span>
+            <span className="sr-only">: {project.name} (opens in a new tab)</span>
           </a>
         ) : null}
 
@@ -78,7 +78,7 @@ export function ProjectCard({ project, index }: { project: Project; index: numbe
           >
             <GithubMark className="size-3.5" />
             Source
-            <span className="sr-only"> — {project.name} on GitHub (opens in a new tab)</span>
+            <span className="sr-only">: {project.name} on GitHub (opens in a new tab)</span>
           </a>
         ) : null}
       </div>

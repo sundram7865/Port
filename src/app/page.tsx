@@ -34,7 +34,7 @@ export default function HomePage() {
               Shramik Sathi
             </a>
             , where a payroll run that breaks the law is a liability, not a bug report. Before that,
-            LLM observability and agentic AI platforms — the kind where the interesting problem is
+            LLM observability and agentic AI platforms. The interesting problem there is
             not the model, but everything you build around it to contain the model being wrong.
           </p>
 
@@ -64,7 +64,7 @@ export default function HomePage() {
           id="systems-heading"
           eyebrow="Architecture"
           title="The three systems, as they actually run"
-          lede="Not illustrations — these are the real topologies, with the components I chose and the reasons they are there. Drag to orbit, or pick a component from the list."
+          lede="Not illustrations. These are the real topologies, with the components I chose and the reasons they are there. Drag to orbit, or pick a component from the list."
         />
         <ArchitectureExplorer />
       </Section>
@@ -195,7 +195,7 @@ export default function HomePage() {
                   >
                     Live
                     <ArrowUpRight aria-hidden className="size-3.5" />
-                    <span className="sr-only"> — {project.name} (opens in a new tab)</span>
+                    <span className="sr-only">: {project.name} (opens in a new tab)</span>
                   </a>
                 ) : null}
                 {project.repo ? (
@@ -207,7 +207,7 @@ export default function HomePage() {
                   >
                     <GithubMark className="size-3.5" />
                     Source
-                    <span className="sr-only"> — {project.name} on GitHub (opens in a new tab)</span>
+                    <span className="sr-only">: {project.name} on GitHub (opens in a new tab)</span>
                   </a>
                 ) : null}
               </div>
@@ -218,37 +218,43 @@ export default function HomePage() {
 
       {/* -------------------------------------------------------------- About */}
       <Section id="about" labelledBy="about-heading">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        {/* Weighted towards the prose column: the portrait takes ~200px out of
+            it, and an even split left the bio wrapping at ~45 characters. */}
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <div>
             <SectionHeading id="about-heading" eyebrow="About" title="How I work" />
 
-            <Image
-              src="/profile-photo.jpg"
-              alt="Sundram Mishra"
-              width={96}
-              height={96}
-              sizes="96px"
-              className="mt-6 size-24 rounded-xl border border-border object-cover"
-            />
+            <div className="mt-8 flex flex-col gap-7 sm:flex-row sm:items-start sm:gap-8">
+              {/* Intrinsic dimensions are the source file's, so the box is
+                  reserved before the image decodes and nothing shifts. */}
+              <Image
+                src="/sundram-mishra.jpg"
+                alt="Sundram Mishra"
+                width={760}
+                height={1056}
+                sizes="(max-width: 640px) 160px, 208px"
+                className="h-auto w-40 shrink-0 rounded-xl border border-border object-cover sm:w-52"
+              />
 
-            <div className="mt-6 space-y-4 text-base leading-[1.75] text-fg-muted">
-              <p>
-                I work on backends where correctness has consequences outside the software — payroll
-                that has to satisfy a labour inspector, an agent that can move money, a tracing
-                pipeline whose own overhead changes what it measures.
-              </p>
-              <p>
-                The pattern in all three is the same: assume the interesting failure is the one that
-                does not raise an error. A payroll run that is quietly illegal, a trace that is
-                quietly incomplete, an agent that was quietly talked into something. Most of the
-                engineering I am proud of is the machinery that makes those failures loud, or
-                impossible.
-              </p>
-              <p>
-                I am finishing a B.Tech at IIIT Nagpur and working remotely as a founding engineer.
-                My competitive programming background is the reason I reach for the boring, provable
-                solution first.
-              </p>
+              <div className="space-y-4 text-base leading-[1.75] text-fg-muted">
+                <p>
+                  I work on backends where correctness has consequences outside the software:
+                  payroll that has to satisfy a labour inspector, an agent that can move money, a
+                  tracing pipeline whose own overhead changes what it measures.
+                </p>
+                <p>
+                  The pattern in all three is the same: assume the interesting failure is the one
+                  that does not raise an error. A payroll run that is quietly illegal, a trace that
+                  is quietly incomplete, an agent that was quietly talked into something. Most of
+                  the engineering I am proud of is the machinery that makes those failures loud, or
+                  impossible.
+                </p>
+                <p>
+                  I am finishing a B.Tech at IIIT Nagpur and working remotely as a founding
+                  engineer. My competitive programming background is the reason I reach for the
+                  boring, provable solution first.
+                </p>
+              </div>
             </div>
 
             <div className="mt-8 rounded-xl border border-border bg-surface p-5">

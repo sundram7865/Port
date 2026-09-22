@@ -6,7 +6,7 @@ import { palettes } from "@/lib/arch-palette";
  *
  * This is the default render, not a placeholder. It is what ships without
  * JavaScript, what reduced-motion visitors keep, and what appears before the
- * WebGL canvas mounts — so the section is never empty and never shifts layout.
+ * WebGL canvas mounts, so the section is never empty and never shifts layout.
  */
 
 const VIEW_W = 960;
@@ -84,7 +84,7 @@ export function StaticDiagram({ architecture, theme = "dark" }: { architecture: 
                 textAnchor="middle"
                 fontSize={11}
                 fontFamily="var(--font-mono-stack), monospace"
-                fill={theme === "dark" ? "#e8ecf1" : "#14181d"}
+                fill={theme === "dark" ? "#e6eaf0" : "#0f141c"}
               >
                 {node.label.length > 13 ? `${node.label.slice(0, 12)}…` : node.label}
               </text>

@@ -20,12 +20,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!project) return {};
 
   return {
-    title: `${project.name} — ${project.tagline}`,
+    title: `${project.name}: ${project.tagline}`,
     description: project.summary,
     alternates: { canonical: `/work/${project.slug}` },
     openGraph: {
       type: "article",
-      title: `${project.name} — ${site.name}`,
+      title: `${project.name} | ${site.name}`,
       description: project.summary,
       url: `/work/${project.slug}`,
     },

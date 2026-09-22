@@ -12,8 +12,8 @@ export const projects: Project[] = [
     name: "Shramik Sathi",
     tagline: "Multi-tenant workforce compliance, built to survive a labour inspection",
     summary:
-      "A statutory compliance platform that turns attendance into legally-defensible payroll for 600+ users — and refuses to produce a run that would break the law.",
-    period: "March 2026 — Present",
+      "A statutory compliance platform that turns attendance into legally-defensible payroll for 600+ users, and refuses to produce a run that would break the law.",
+    period: "March 2026 - Present",
     role: "Founding Engineer",
     stack: [
       "TypeScript",
@@ -41,18 +41,18 @@ export const projects: Project[] = [
       'The work was not "build a payroll app". It was: make the correct record the easiest record to produce, make it impossible to generate an illegal one, and prove after the fact that nobody quietly edited history.',
     ],
     constraints: [
-      "Statutory output format is fixed. 11 registers have a legally-prescribed shape — the schema has to serve the form, not the other way round.",
+      "Statutory output format is fixed. 11 registers have a legally-prescribed shape, so the schema has to serve the form, not the other way round.",
       "Two hard legal ceilings: total deductions may not exceed 50% of wages (Payment of Wages Act) and basic pay may not fall below 50% of the total (Code on Wages). These are not warnings.",
       "Multi-tenant from day one. One contractor must never see another's roll, and a bug in a query must not be the only thing standing between them.",
-      'Audit trail must be non-repudiable — an inspector\'s question is "who changed this, and when", not "what does it say now".',
+      'Audit trail must be non-repudiable: an inspector\'s question is "who changed this, and when", not "what does it say now".',
       "Single founding engineer, early-stage budget. No managed queue, no managed cache, no observability vendor.",
     ],
     approach: [
       {
         heading: "Model the statute, not the convenience",
         body: [
-          "The 66-table PostgreSQL schema on Prisma is normalised around the legal entities — establishment, contractor, worker, attendance period, wage component, deduction, register — rather than around the screens. 51 Next.js screens read from that model; none of them own state.",
-          "224 REST APIs sit on Express and TypeScript. The API surface is wide because the domain is wide: each statutory register, each wage component and each approval transition is an explicit endpoint rather than an overloaded generic mutation. That is a deliberate trade — see below.",
+          "The 66-table PostgreSQL schema on Prisma is normalised around the legal entities (establishment, contractor, worker, attendance period, wage component, deduction, register) rather than around the screens. 51 Next.js screens read from that model; none of them own state.",
+          "224 REST APIs sit on Express and TypeScript. The API surface is wide because the domain is wide: each statutory register, each wage component and each approval transition is an explicit endpoint rather than an overloaded generic mutation. That is a deliberate trade; see below.",
         ],
       },
       {
@@ -66,21 +66,21 @@ export const projects: Project[] = [
         heading: "Move the slow, failure-prone work off the request path",
         body: [
           "Payroll runs, exports and PDF generation are asynchronous jobs on BullMQ backed by Redis. The HTTP layer accepts, enqueues and returns; a dedicated worker container does the work.",
-          "PDF rendering was the specific failure. Payslips were rendered by launching a headless Chromium per document — for a 200-worker establishment that is 200 process launches in one run, and it reliably hit render timeouts. Replacing per-document launches with a pooled browser instance took that to a single launch per payslip run and the timeouts stopped.",
+          "PDF rendering was the specific failure. Payslips were rendered by launching a headless Chromium per document. For a 200-worker establishment that is 200 process launches in one run, and it reliably hit render timeouts. Replacing per-document launches with a pooled browser instance took that to a single launch per payslip run and the timeouts stopped.",
         ],
       },
       {
         heading: "Defence in depth on tenancy and identity",
         body: [
           "Access control is layered rather than trusted to one check: JWT rotation with token-family revocation so a stolen refresh token invalidates its whole lineage; tenant-scoped middleware that constrains the query before a handler runs; and a 7-role RBAC model with scoping so a role means different things in different establishments.",
-          'History is append-only. Records are never updated destructively — the audit log is the source of truth for "who changed what", which is precisely the question an inspection asks.',
+          'History is append-only. Records are never updated destructively; the audit log is the source of truth for "who changed what", which is precisely the question an inspection asks.',
           "This is the part of the system that is verified rather than assumed: 2,152 Jest tests across 37 suites hold 77% statement coverage, weighted towards the payroll maths and the authorisation boundary.",
         ],
       },
       {
         heading: "Deploy small, deliberately",
         body: [
-          "The whole system runs on a single AWS EC2 host as a 5-container Docker Compose stack — Nginx, API, web, worker and Redis — with RDS for PostgreSQL and S3 for generated documents.",
+          "The whole system runs on a single AWS EC2 host as a 5-container Docker Compose stack (Nginx, API, web, worker and Redis) with RDS for PostgreSQL and S3 for generated documents.",
           "Redis is co-located on the box rather than run as managed ElastiCache. At this scale the queue is not the bottleneck and the durability requirement is weak: a lost job is re-runnable from the attendance data, which lives in RDS. That saves ₹1,320/month, which at an early stage is a real number.",
         ],
       },
@@ -89,7 +89,7 @@ export const projects: Project[] = [
       {
         heading: "224 endpoints instead of a generic API",
         body: [
-          "A narrower, more generic surface would have been less code. I chose explicitness because in a compliance domain the endpoint name is documentation — an approve-wage-run endpoint has an auditable meaning that a generic resource PATCH does not, and authorisation rules attach cleanly to specific transitions.",
+          "A narrower, more generic surface would have been less code. I chose explicitness because in a compliance domain the endpoint name is documentation. An approve-wage-run endpoint has an auditable meaning that a generic resource PATCH does not, and authorisation rules attach cleanly to specific transitions.",
           "The cost is real: 224 endpoints is a lot of surface to keep consistent, and it is the main reason the test count is as high as it is.",
         ],
       },
@@ -103,14 +103,14 @@ export const projects: Project[] = [
       {
         heading: "Blocking runs rather than warning on them",
         body: [
-          'Hard-blocking a payroll run is an aggressive product decision — it means the system can tell a business owner "no" at the worst possible moment.',
+          'Hard-blocking a payroll run is an aggressive product decision: it means the system can tell a business owner "no" at the worst possible moment.',
           "I took it because the alternative is generating a document that becomes evidence against the user in an inspection. A blocked run is an inconvenience; an illegal register is a liability.",
         ],
       },
     ],
     retrospective: [
-      "Pooling Chromium fixed the symptom, not the cause. A browser is a heavy, stateful dependency to have on the critical path of a legally-required document. Given the time I would render the statutory registers with a typed PDF writer against the fixed statutory layouts and remove Chromium from the payslip path entirely — the layouts are prescribed and do not need a rendering engine.",
-      "The schema grew around the 11 register shapes. That got the compliance output right quickly, but it means adding a twelfth register touches more of the model than it should. I would extract register generation into a declarative spec — columns, sources and aggregations as data — so a new statutory form is a definition rather than a migration.",
+      "Pooling Chromium fixed the symptom, not the cause. A browser is a heavy, stateful dependency to have on the critical path of a legally-required document. Given the time I would render the statutory registers with a typed PDF writer against the fixed statutory layouts and remove Chromium from the payslip path entirely. The layouts are prescribed and do not need a rendering engine.",
+      "The schema grew around the 11 register shapes. That got the compliance output right quickly, but it means adding a twelfth register touches more of the model than it should. I would extract register generation into a declarative spec (columns, sources and aggregations as data) so a new statutory form is a definition rather than a migration.",
       "Tenant isolation is enforced in middleware. It works, and the tests cover it, but it is still application-layer enforcement. PostgreSQL row-level security would put the boundary in the database, where a missed WHERE clause cannot bypass it. That is the change I would most want to make before the next order of magnitude of users.",
     ],
     impact: [
@@ -127,7 +127,7 @@ export const projects: Project[] = [
     name: "SupportPilot",
     tagline: "An agentic support platform built on the assumption the model will be wrong",
     summary:
-      "A multi-tenant AI support platform where a 15-node LangGraph pipeline can retrieve, reason and recommend — but cannot issue a refund the backend has not already authorised.",
+      "A multi-tenant AI support platform where a 15-node LangGraph pipeline can retrieve, reason and recommend, but cannot issue a refund the backend has not already authorised.",
     period: "Personal project",
     role: "Sole engineer",
     stack: [
@@ -151,22 +151,22 @@ export const projects: Project[] = [
       { value: "500+", label: "automated tests" },
     ],
     problem: [
-      "An AI support agent that can only answer questions is a search box. An agent that can act — issue a refund, change an order, escalate — is useful, and is also a system where a confident hallucination becomes a financial event.",
+      "An AI support agent that can only answer questions is a search box. An agent that can act, whether that is issuing a refund, changing an order or escalating, is useful, and is also a system where a confident hallucination becomes a financial event.",
       "The interesting problem is not making the model good. It is designing the surrounding system so that the model being wrong, or being deliberately manipulated by the customer it is talking to, stays contained.",
     ],
     constraints: [
-      "The untrusted input is the conversation itself. A support channel is an open prompt-injection surface by definition — the attacker is the user you are obliged to serve.",
+      "The untrusted input is the conversation itself. A support channel is an open prompt-injection surface by definition: the attacker is the user you are obliged to serve.",
       "Agent runs are long and multi-step, so a process restart mid-run must not lose or duplicate the work.",
       "Multi-tenant: retrieval must never cross a tenant boundary, including through the vector index.",
       "Support is real-time. Message delivery has to survive reconnects without gaps or repeats.",
-      "Personal project — infrastructure that bills while idle was not acceptable.",
+      "Personal project: infrastructure that bills while idle was not acceptable.",
     ],
     approach: [
       {
         heading: "A graph, not a prompt",
         body: [
           "The agent is a 15-node LangGraph pipeline rather than one large prompt: classification, risk detection, retrieval, groundedness checking and policy decisions are separate nodes with separate contracts.",
-          "The important word is deterministic. Policy decisions are not asked of the model — the model produces a recommendation, and a deterministic node decides. That means the same case produces the same outcome regardless of sampling.",
+          "The important word is deterministic. Policy decisions are not asked of the model: the model produces a recommendation, and a deterministic node decides. That means the same case produces the same outcome regardless of sampling.",
           "Runs are checkpointed to PostgreSQL, so a run interrupted by a deploy resumes from its last completed node instead of restarting and re-executing side effects.",
         ],
       },
@@ -197,7 +197,7 @@ export const projects: Project[] = [
         heading: "Cron-driven jobs instead of Celery",
         body: [
           "The original design used Celery. A Celery worker is a process that costs money continuously whether or not there is work, and on a personal project that idle cost dominated everything else. Replacing it with cron-driven jobs removed always-on infrastructure entirely.",
-          "What I gave up is backpressure. A queue tells you how deep it is; cron tells you nothing. At this volume that is fine, but the moment ingest becomes bursty the cron design stops being able to tell me it is behind — and that is a monitoring blind spot, not just a throughput one.",
+          "What I gave up is backpressure. A queue tells you how deep it is; cron tells you nothing. At this volume that is fine, but the moment ingest becomes bursty the cron design stops being able to tell me it is behind, and that is a monitoring blind spot, not just a throughput one.",
         ],
       },
       {
@@ -211,12 +211,12 @@ export const projects: Project[] = [
         heading: "15 nodes is more surface than one prompt",
         body: [
           "A decomposed graph costs latency at each hop and is meaningfully more code to maintain than a single well-written prompt.",
-          "It buys the ability to test and measure each stage independently — which is what makes the 500+ test suite possible at all. A monolithic prompt can only be evaluated end to end.",
+          "It buys the ability to test and measure each stage independently, which is what makes the 500+ test suite possible at all. A monolithic prompt can only be evaluated end to end.",
         ],
       },
     ],
     retrospective: [
-      "The five guardrail layers are independent, which is good, but their failure signals are not aggregated anywhere. Today a blocked injection attempt and a failed groundedness check look like unrelated events. I would emit both into one security timeline per conversation — the pattern across layers is far more informative than any single layer's verdict.",
+      "The five guardrail layers are independent, which is good, but their failure signals are not aggregated anywhere. Today a blocked injection attempt and a failed groundedness check look like unrelated events. I would emit both into one security timeline per conversation, because the pattern across layers is far more informative than any single layer's verdict.",
       "Checkpointing to PostgreSQL makes runs resumable but also makes the run table the hottest write path in the system. I would move checkpoints for completed runs out to cheaper storage and keep only in-flight state hot.",
       "Retrieval is measured with RAGAS on a fixed evaluation set. That validates the pipeline, but it does not catch drift once real tickets stop looking like the set. I would sample production retrievals back into the evaluation loop so the metric stays honest over time.",
     ],
@@ -258,12 +258,12 @@ export const projects: Project[] = [
       { value: "312", label: "tests in CI" },
     ],
     problem: [
-      "An LLM agent that fails in production fails invisibly. There is no stack trace for a model that retrieved the wrong document, or a graph that took a branch nobody expected — the run simply produces a bad answer and exits successfully.",
+      "An LLM agent that fails in production fails invisibly. There is no stack trace for a model that retrieved the wrong document, or a graph that took a branch nobody expected. The run simply produces a bad answer and exits successfully.",
       "Making that visible means instrumenting the agent, and instrumentation has a hard constraint most observability write-ups skip: the tracing path is now inside the latency budget of the thing it is watching. If it is slow, it changes the behaviour it is supposed to measure. If it drops events, the trace is a lie.",
     ],
     constraints: [
       "Added latency has to be small enough to be irrelevant to the host application, measured at the tail rather than the mean.",
-      "Transport is at-least-once. Redis Streams with consumer groups will redeliver on restart — so duplicates are guaranteed, not hypothetical.",
+      "Transport is at-least-once. Redis Streams with consumer groups will redeliver on restart, so duplicates are guaranteed, not hypothetical.",
       "Workers get restarted: deploys, scaling, OOM. A restart must not lose in-flight events or duplicate persisted ones.",
       "Traces carry whatever the agent saw, which means they carry PII and untrusted model input by default.",
       "LLM-as-judge evaluation costs money per call, and a runaway evaluator on a multi-tenant system is an unbounded bill.",
@@ -272,9 +272,9 @@ export const projects: Project[] = [
       {
         heading: "Get off the caller's thread immediately",
         body: [
-          "The SDK instruments LangChain and LangGraph agents and streams traces into Redis Streams. The only work on the application's thread is the enqueue — everything else happens in consumers.",
+          "The SDK instruments LangChain and LangGraph agents and streams traces into Redis Streams. The only work on the application's thread is the enqueue; everything else happens in consumers.",
           "Measured at the tail, that costs 29 µs at p99 while sustaining 744 events/s. The p99 figure is the one that matters: a mean would hide exactly the stalls that would make this unusable.",
-          "Three consumer groups read the same stream independently — ingestion, evaluation and guardrail processing — so a slow evaluator cannot block trace persistence.",
+          "Three consumer groups read the same stream independently (ingestion, evaluation and guardrail processing), so a slow evaluator cannot block trace persistence.",
         ],
       },
       {
@@ -282,7 +282,7 @@ export const projects: Project[] = [
         body: [
           "At-least-once delivery means the system will see the same event twice, and the correct response is to make that boring rather than to try to prevent it.",
           "Ingestion is idempotent end to end: unique constraints in PostgreSQL define what identity means, ON CONFLICT upserts make a replay a no-op rather than an error, dead-letter queues capture what genuinely cannot be processed, and SIGTERM draining lets a worker finish in-flight messages before it exits.",
-          "The result is that a worker restart or a redeploy — the two most common causes of redelivery — produce no duplicate rows and no lost events.",
+          "The result is that a worker restart or a redeploy, the two most common causes of redelivery, produce no duplicate rows and no lost events.",
         ],
       },
       {
@@ -297,7 +297,7 @@ export const projects: Project[] = [
         heading: "Bound the cost of evaluation",
         body: [
           "Quality scoring uses a batched LLM-as-judge evaluator. Batching amortises the per-call overhead, and per-tenant budget caps mean one tenant's traffic spike cannot consume another's evaluation budget or produce an unbounded bill.",
-          "312 tests run on every push through GitHub Actions, covering the idempotency guarantees specifically — those are the properties most likely to silently regress.",
+          "312 tests run on every push through GitHub Actions, covering the idempotency guarantees specifically, because those are the properties most likely to silently regress.",
         ],
       },
     ],
@@ -306,14 +306,14 @@ export const projects: Project[] = [
         heading: "Redis Streams instead of Kafka",
         body: [
           "Kafka is the obvious answer for an append-only event log and gives durable, disk-backed retention. Redis Streams gave me consumer groups, at-least-once delivery and acknowledgement semantics with a fraction of the operational weight, on infrastructure already present.",
-          "The cost is that retention is memory-bound. Stream trimming is not a tuning knob here — it is a data-retention policy, and at 744 events/s a consumer that falls far enough behind turns trimming into data loss.",
+          "The cost is that retention is memory-bound. Stream trimming is not a tuning knob here; it is a data-retention policy, and at 744 events/s a consumer that falls far enough behind turns trimming into data loss.",
         ],
       },
       {
         heading: "Idempotency in the database, not the transport",
         body: [
           "I could have chased exactly-once semantics at the transport layer. Instead the database defines identity and absorbs replays through unique constraints and ON CONFLICT.",
-          "That pushes load onto PostgreSQL and means every event pays an index cost on write. In exchange the correctness argument is simple enough to test — and 312 CI tests can actually assert it.",
+          "That pushes load onto PostgreSQL and means every event pays an index cost on write. In exchange the correctness argument is simple enough to test, and 312 CI tests can actually assert it.",
         ],
       },
       {
@@ -325,13 +325,13 @@ export const projects: Project[] = [
       },
     ],
     retrospective: [
-      "Retention is the weakest part of the design. Memory-bound streams mean the system's worst failure mode is quiet — a lagging consumer plus trimming loses data without an error anywhere. I would tier cold traces to object storage behind the same read API, so retention stops being a memory budget, and alert on consumer lag as a first-class signal rather than a dashboard number.",
+      "Retention is the weakest part of the design. Memory-bound streams mean the system's worst failure mode is quiet: a lagging consumer plus trimming loses data without an error anywhere. I would tier cold traces to object storage behind the same read API, so retention stops being a memory budget, and alert on consumer lag as a first-class signal rather than a dashboard number.",
       "The three consumer groups are independent but share one Redis instance, so they share a failure domain. That undercuts part of the point of separating them. Splitting evaluation onto its own instance would make the isolation real rather than logical.",
       "Guardrail accuracy is reported against a fixed evaluation set. 100% recall on a static set is a weaker claim than it sounds, because prompt-injection technique moves. I would want an adversarial set that gets updated, and I would report the metric with its set version attached.",
     ],
     impact: [
       "29 µs p99 added latency at 744 events/s sustained, with zero event loss.",
-      "Idempotent ingestion over at-least-once delivery — no duplicates across worker restarts or redeploys.",
+      "Idempotent ingestion over at-least-once delivery, with no duplicates across worker restarts or redeploys.",
       "PII and prompt-injection guardrails at 100% recall and 0% false positives on the evaluation set.",
       "JWT/OIDC, Argon2id and tenant RBAC across the platform.",
       "Batched LLM-as-judge evaluation with per-tenant budget caps.",
@@ -341,7 +341,7 @@ export const projects: Project[] = [
 ];
 
 /**
- * Earlier work. Kept deliberately short — these are listed for completeness,
+ * Earlier work. Kept deliberately short, since these are listed for completeness,
  * not argued for. A link is omitted where a working one does not exist, rather
  * than pointed at a profile page.
  */

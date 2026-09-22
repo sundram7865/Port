@@ -36,7 +36,7 @@ export const architectures: Architecture[] = [
         label: "Next.js web",
         kind: "service",
         position: [-1.8, 2.0, -0.9],
-        detail: "51 screens. Holds no state of its own — every view reads through the API.",
+        detail: "51 screens. Holds no state of its own; every view reads through the API.",
         metric: "51 screens",
       },
       {
@@ -219,7 +219,7 @@ export const architectures: Architecture[] = [
         label: "Customer",
         kind: "client",
         position: [-7.8, 0.2, 0],
-        detail: "Untrusted input by definition — the attacker is the user you are obliged to serve.",
+        detail: "Untrusted input by definition: the attacker is the user you are obliged to serve.",
       },
       {
         id: "ws",
