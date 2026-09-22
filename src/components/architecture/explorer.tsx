@@ -271,7 +271,7 @@ export function ArchitectureExplorer() {
             </div>
           </div>
 
-          <ul className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
+          <ul id="architecture-nodes" className="mt-3 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
             {architecture.nodes.map((node) => (
               <li key={node.id}>
                 <button

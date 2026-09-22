@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run check:contrast",
-    "check:contrast": "node scripts/check-contrast.mjs"
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:visual": "node scripts/check-visual.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.0",

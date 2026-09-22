@@ -30,9 +30,13 @@ one definition. A blocking script in `<head>` resolves the theme before first pa
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
-npm run check      # tsc --noEmit && eslint
+npm run dev              # http://localhost:3000
+npm run check            # types, lint, contrast
 npm run build
+
+# Responsive and degradation checks, against a running build:
+npm run build && npm start &
+npm run check:visual     # BASE_URL / CHROME_PATH are configurable
 ```
 
 ## Structure
@@ -52,4 +56,19 @@ src/
 - Semantic landmarks, one `h1` per page, skip link, visible focus ring on every interactive element.
 - The 3D canvas is `aria-hidden`; the same graph is navigable as a list of buttons beside it.
 - All motion, including the scene, is gated on `prefers-reduced-motion`.
-- Contrast: body text 4.9:1 (dark) / 5.8:1 (light); the accent button 9.6:1 / 5.1:1.
+
+Two things are checked rather than claimed, because neither shows up in a type
+check, a lint pass or a Lighthouse run:
+
+- `npm run check:contrast` parses the token values out of `globals.css` and
+  asserts all 28 foreground/background pairs clear WCAG AA in **both** themes.
+  Lighthouse only tests whichever theme a run resolved to, and returned 100
+  while three pairs were failing.
+- `npm run check:visual` drives the built site at 375 / 768 / 1440 in both
+  themes and asserts no horizontal overflow, no console output, and that the
+  WebGL scene acquires a context and projects every node label — plus that
+  reduced-motion mounts no canvas and that the page still works with
+  JavaScript disabled.
+
+Lighthouse (mobile emulation) at the time of writing: home 98/100/100/100,
+case study 99/100/100/100, note 96/100/100/100.
